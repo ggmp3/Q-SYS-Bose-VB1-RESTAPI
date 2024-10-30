@@ -1,0 +1,2042 @@
+-- NOTES:
+-- Only utilise the 'Count' property within the Controls table within the Master_Object table if there is more than 1 control required.
+
+
+-- Information block for the plugin
+PluginInfo = {
+    Name = "Bose~VB1 Videobar (REST API)", -- Name of the plugin
+    Version = "1.0", -- Current plugin version
+    Id = "qsysc.Bose VB1 (REST API)", -- Unique identifier for the plugin. Must not conflict with other installed plugins
+    Description = "Plugin for control of the Bose VB1 Videobar using the REST API", -- A brief description of the plugin
+    BuildVersion = "0.0.0.0", -- Current code iteration tracking
+    Author = "Glen Gorton", -- Name or Contact Info of the author
+    Manufacturer = "Bose", -- Name of manufacturer the product the plugin integrates
+    -- Model = "", -- Model name of the product the plugin integrates
+    -- IsManaged = true, -- Add the plugin to the managed inventory of the design
+    -- Type = "", -- Reflect reporting type
+    ShowDebug = true,
+  }
+  
+  width = 400 -- scalable plugin width
+  control_depth = 16 -- scalable control depth
+  control_gap = 3 -- vertical space between controls
+  
+  Colors = {
+      none = {0, 0, 0, 0},
+      primary = {212, 202, 226},
+      secondary = {51, 51, 51},
+      heading = {50, 50, 50},
+      label = {50, 50, 50},
+      stroke = {51, 51, 51},
+      black = {51, 51, 51},
+      navy = {15, 63, 106},
+      lightblue = {143, 197, 247},
+      darkgrey = {58,58,58},
+      lightgrey = {204,204,204},
+      yellow = {255, 204, 51},
+      white = {255, 255, 255}
+  }
+  
+  Sizes = {
+      ["Button"] = {36, control_depth},
+      ["Text"] = {(width - 30) / 2.5, control_depth},
+      ["TextMultiple"] = {(width - 30) / 5.5, control_depth},
+      ["Status"] = {width - 30, (control_depth * 2) + (control_gap * 1)},
+      ["LED"] = {16, control_depth},
+      ["LEDButtonLarge"] = {36, control_depth * 2}, -- This large LED requires 2x GridPos
+      ["ListBox"] = {width - 30, (control_depth * 8) + (control_gap * 9)},
+      ["Image"] = {width - 30, (control_depth * 6) + (control_gap * 5)},
+      ["CameraImage"] = {width - 130, (control_depth * 10) + (control_gap * 9)},
+  }
+  
+  Master_Object = {{
+  
+      ["PageName"] = "Dashboard",
+  
+      ["Groupings"] = {{
+          ["Name"] = "Status",
+          ["Depth"] = 5,
+          ["Controls"] = {{
+            Name = "Status",
+            PrettyName = "Dashboard~Status",
+            Label = "Status",
+            ControlType = "Indicator",
+            IndicatorType = "Status",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Status,
+            GridPos = 1
+        }, {
+            Name = "Model Number",
+            PrettyName = "Dashboard~Model Number",
+            Label = "Model Number",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "Serial Number",
+            PrettyName = "Dashboard~Serial Number",
+            Label = "Serial Number",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }, {
+            Name = "Firmware Version",
+            PrettyName = "Dashboard~Firmware Version",
+            Label = "Firmware Version",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 5
+        }}
+    }, {
+          ["Name"] = "Network",
+          ["Depth"] = 8,
+          ["Controls"] = {{
+            Name = "Ethernet Enabled",
+            PrettyName = "Network~Ethernet Enabled",
+            Label = "Ethernet Enabled",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+          }, {
+            Name = "MAC Address (Ethernet)",
+            PrettyName = "Network~MAC Address (Ethernet)",
+            Label = "MAC Address (Ethernet)",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+          }, {
+            Name = "Ethernet State",
+            PrettyName = "Network~Ethernet State",
+            Label = "Ethernet State",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+          }, {
+            Name = "DHCP (Ethernet)",
+            PrettyName = "Network~DHCP (Ethernet)",
+            Label = "DHCP (Ethernet)",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 4
+          }, {
+            Name = "Wifi Enabled",
+            PrettyName = "Network~Wifi Enabled",
+            Label = "Wifi Enabled",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 5
+          }, {
+            Name = "MAC Address (Wifi)",
+            PrettyName = "Network~MAC Address (Wifi)",
+            Label = "MAC Address (Wifi)",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 6
+          }, {
+            Name = "Wifi State",
+            PrettyName = "Network~Wifi State",
+            Label = "Wifi State",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 7
+          }, {
+            Name = "DHCP (Wifi)",
+            PrettyName = "Network~DHCP (Wifi)",
+            Label = "DHCP (Wifi)",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 8
+        }}
+    }, {
+          ["Name"] = "Physical Connections",
+          ["Depth"] = 4,
+          ["Controls"] = {{
+            Name = "USB Connected",
+            PrettyName = "Physical Connections~USB Connected",
+            Label = "USB Connected",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 1
+          }, {
+            Name = "USB Call Status",
+            PrettyName = "Physical Connections~USB Call Status",
+            Label = "USB Call Status",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 2
+          }, {
+            Name = "GPI Mute State",
+            PrettyName = "Physical Connections~GPI Mute State",
+            Label = "GPI Mute State",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 3
+        }, {
+            Name = "HDMI Enabled",
+            PrettyName = "Physical Connections~HDMI Enabled",
+            Label = "HDMI Enabled",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 4
+        }}
+      }}
+    },{
+      ["PageName"] = "Audio & Video",
+
+      ["Groupings"] = {{
+        ["Name"] = "Audio",
+        ["Depth"] = 5,
+        ["Controls"] = {{
+            Name = "Microphone Mute",
+            PrettyName = "Audio~Microphone Mute",
+            Label = "Microphone Mute",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }, {
+            Name = "Speaker Mute",
+            PrettyName = "Audio~Speaker Mute",
+            Label = "Speaker Mute",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 2
+          }, {
+            Name = "Speaker Volume",
+            PrettyName = "Audio~Speaker Volume",
+            Label = "Speaker Volume",
+            ControlType = "Knob", 
+            ControlUnit = "Integer",
+            Style = "Text",
+            Max = 100,
+            Min = 0,
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+          }, {
+            Name = "Speaker Volume +",
+            PrettyName = "Audio~Speaker Volume +",
+            Label = "Speaker Volume +",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 4
+          }, {
+            Name = "Speaker Volume -",
+            PrettyName = "Audio~Speaker Volume -",
+            Label = "Speaker Volume -",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 5
+        }}
+    }, {
+        ["Name"] = "Camera",
+        ["Depth"] = 9,
+        ["Controls"] = {{
+            Name = "Camera State",
+            PrettyName = "Camera~Camera State",
+            Label = "Camera State",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 1
+      }, {
+            Name = "Pan/Tilt (Up, Down, Left, Right)",
+            PrettyName = "Camera~Pant & Tilt",
+            Label = "Pan & Tilt",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            --Width = "Full",
+            Size = Sizes.Button,
+            Count = 4,
+            GridPos = 2
+        }, {
+            Name = "Zoom (In, Out)",
+            PrettyName = "Camera~Zoom (In, Out)",
+            Label = "Zoom (In, Out)",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            --Width = "Full",
+            Size = Sizes.Button,
+            Count = 2,
+            GridPos = 3
+        }, {
+            Name = "Camera Pan",
+            PrettyName = "Camera~Camera Pan",
+            Label = "Camera Pan",
+            ControlType = "Knob", 
+            ControlUnit = "Integer",
+            Style = "Text",
+            Max = 10,
+            Min = -10,
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }, {
+            Name = "Camera Tilt",
+            PrettyName = "Camera~Camera Tilt",
+            Label = "Camera Tilt",
+            ControlType = "Knob", 
+            ControlUnit = "Integer",
+            Style = "Text",
+            Max = 10,
+            Min = -10,
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 5
+        }, {
+            Name = "Camera Zoom",
+            PrettyName = "Camera~Camera Zoom",
+            Label = "Camera Zoom",
+            ControlType = "Knob", 
+            ControlUnit = "Integer",
+            Style = "Text",
+            Max = 10,
+            Min = -1,
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 6
+        }, {
+            Name = "Preset (Press to Recall, Hold to Save)",
+            PrettyName = "Camera~Presets",
+            Label = "Presets",
+            ControlType = "Button",
+            ButtonType = "Momentary",
+            PinStyle = "Both",
+            UserPin = true,
+            --Width = "Full",
+            Size = Sizes.Button,
+            Count = 3,
+            GridPos = 7
+        }, {
+            Name = "Preset Active",
+            PrettyName = "Camera~Preset Active",
+            Label = "Preset Active",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LEDButtonLarge,
+            Count = 3,
+            GridPos = 8
+        }}
+    }, {
+        ["Name"] = "Autoframing",
+        ["Depth"] = 1,
+        ["Controls"] = {{
+
+            Name = "Camera Autoframing",
+            PrettyName = "Autoframing~Autoframing",
+            Label = "Autoframing Enabled",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }}
+      }}
+    },{
+      ["PageName"] = "Bluetooth",
+
+      ["Groupings"] = {{
+        ["Name"] = "Bluetooth",
+        ["Depth"] = 8,
+        ["Controls"] = {{
+            Name = "Bluetooth Enabled",
+            PrettyName = "Bluetooth~Bluetooth Enabled",
+            Label = "Bluetooth Enabled",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }, {
+            Name = "Bluetooth State",
+            PrettyName = "Bluetooth~Bluetooth State",
+            Label = "Bluetooth State",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 2
+          }, {
+            Name = "Bluetooth Connected",
+            PrettyName = "Bluetooth~Bluetooth Connected",
+            Label = "Bluetooth Connected",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 3
+          }, {
+            Name = "Bluetooth Streaming",
+            PrettyName = "Bluetooth~Bluetooth Streaming",
+            Label = "Bluetooth Streaming",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 4
+          }, {
+            Name = "Bluetooth Call Status",
+            PrettyName = "Bluetooth~Bluetooth Call Status",
+            Label = "Bluetooth Call Status",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 5
+          }, {
+            Name = "Bluetooth Pairing",
+            PrettyName = "Bluetooth~Bluetooth Pairing",
+            Label = "Bluetooth Pairing Enabled",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 6
+          }, {
+            Name = "Bluetooth Paired Device",
+            PrettyName = "Bluetooth~Bluetooth Paired Device",
+            Label = "Bluetooth Paired Device",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 7
+          }, {
+            Name = "Bluetooth Disconnect Device",
+            PrettyName = "Bluetooth~Bluetooth Disconnect Device",
+            Label = "Bluetooth Disconnect Device",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 8
+        }}
+      }}
+    },{
+      ["PageName"] = "People Counting (VB1)",
+
+      ["Groupings"] = {{
+        ["Name"] = "People Counting",
+        ["Depth"] = 4,
+        ["Controls"] = {{
+            Name = "People Present",
+            PrettyName = "People Counting~People Present",
+            Label = "People Present",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 1
+        }, {
+            Name = "People Count",
+            PrettyName = "People Counting~People Count",
+            Label = "People Count",
+            ControlType = "Knob", 
+            ControlUnit = "Integer",
+            Style = "Text",
+            Max = 99,
+            Min = 0,
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+        }, {
+            Name = "People Count Check",
+            PrettyName = "People Counting~People Count Check",
+            Label = "People Count Check (sec)",
+            ControlType = "Knob", 
+            ControlUnit = "Integer",
+            Style = "Text",
+            Max = 99,
+            Min = 0,
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+          }, {
+            Name = "People Count Event Log",
+            PrettyName = "People Counting~People Count Event Log",
+            Label = "People Count Event Log",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 4
+        }}
+      }}
+    },{
+      ["PageName"] = "Setup",
+  
+      ["Groupings"] = {{
+          ["Name"] = "Connection",
+          ["Depth"] = 8,
+          ["Controls"] = {{
+            Name = "Connect",
+            PrettyName = "Setup~Connect",
+            Label = "Connect",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }, {
+            Name = "IP Address",
+            PrettyName = "Setup~IP Address",
+            Label = "IP Address",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+        }, {
+            Name = "Login Name",
+            PrettyName = "Setup~Login Name",
+            Label = "Login Name",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "Login Password",
+            PrettyName = "Setup~Login Password",
+            Label = "Login Password",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }, {
+            Name = "Event Log Prefix",
+            PrettyName = "Setup~Event Log Prefix",
+            Label = "Event Log Prefix",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 5
+        }, {
+            Name = "Log Entry",
+            PrettyName = "Setup~Log Entry",
+            Label = "Log Entry",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 6
+        }, {
+            Name = "Log Severity",
+            PrettyName = "Setup~Log Severity",
+            Label = "Log Severity",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 7
+        }, {
+            Name = "Log Trigger",
+            PrettyName = "Setup~Log Trigger",
+            Label = "Log Trigger",
+            ControlType = "Button", 
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 8
+        }}
+    }, {
+        ["Name"] = "Device",
+        ["Depth"] = 7,
+        ["Controls"] = {{
+            Name = "Name",
+            PrettyName = "Setup~Name",
+            Label = "Name",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 1
+        }, {
+            Name = "Building",
+            PrettyName = "Setup~Building",
+            Label = "Building",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+        }, {
+            Name = "Floor",
+            PrettyName = "Setup~Floor",
+            Label = "Floor",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "Room",
+            PrettyName = "Setup~Room",
+            Label = "Room",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }, {
+            Name = "Capacity",
+            PrettyName = "Setup~Capacity",
+            Label = "Capacity",
+            ControlType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 5
+          }, {
+            Name = "Reboot",
+            PrettyName = "Setup~Reboot",
+            Label = "Reboot",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 7
+      }}
+    }}
+  }}
+  
+  
+  -- Define the color of the plugin object when dragged into the design
+  function GetColor(props)
+      return Colors.black
+  end
+  
+  -- The name that will initially display when dragged into a design
+  function GetPrettyName(props)
+    return string.format("Bose\nVB1 Videobar (REST API)\n[%s]", PluginInfo.Version)
+  end
+  
+  -- Define User configurable Properties of the plugin
+  function GetProperties()
+      local props = {}
+      return props
+  end
+  
+  -- Optional function used if plugin has multiple pages
+  function GetPages(props)
+      local pages = {}
+      for i, tbl in ipairs(Master_Object) do
+        table.insert(pages, {name = tbl.PageName})
+      end
+      return pages
+  end
+  
+  -- Optional function to define pins on the plugin that are not connected to a Control
+  function GetPins(props)
+      local pins = {}
+      return pins
+  end
+  
+  -- Optional function to update available properties when properties are altered by the user
+  function RectifyProperties(props)
+      return props
+  end
+  
+  -- Optional function to define components used within the plugin
+  function GetComponents(props)
+      local components = {}
+      return components
+  end
+  
+  -- Optional function to define wiring of components used within the plugin
+  function GetWiring(props)
+      local wiring = {}
+      return wiring
+  end
+  
+  -- Defines the Controls used within the plugin
+  function GetControls(props)
+      local ctls = {}
+      for i, page in ipairs(Master_Object) do
+        for i, grouping in ipairs(page.Groupings) do
+            for i, control in ipairs(grouping.Controls) do
+                table.insert(ctls, control)
+            end
+        end
+      end
+      return ctls
+  end
+  
+  -- Layout of controls and graphics for the plugin UI to display
+  function GetControlLayout(props)
+      local graphics, layout, control_slots = {}, {}, {}
+      
+      local page_index = props["page_index"].Value
+      
+      -- starting depth
+      local total_depth = 0
+      
+      -- dynamically create graphics boxes
+      for i, grouping in ipairs(Master_Object[page_index].Groupings) do
+      
+          total_depth = total_depth + control_depth
+      
+          depth = grouping.Depth
+      
+          len = string.len(grouping.Name)
+      
+          table.insert(graphics, {
+              Type = "GroupBox",
+              Fill = Colors.black,
+              StrokeColor = Colors.stroke,
+              StrokeWidth = 2,
+              CornerRadius = 8,
+              HTextAlign = "Left",
+              Position = {
+                  0,
+                  total_depth
+              },
+              Size = {
+                  width,
+                  40 + (depth * control_depth) + ((depth - 1) * control_gap)
+              }
+          })
+      
+          -- generate control slots per group box depth and control_depth requirement
+      
+          grouping["Control_Slots"] = {}
+      
+          for n = 1, grouping.Depth do
+      
+              grouping["Control_Slots"][n] = ((total_depth + 25) + (control_depth * (n - 1)) + ((n - 1) * control_gap))
+      
+          end
+      
+          -- dynamically create groupbox labels
+          table.insert(graphics, {
+              Type = "Label",
+              Text = Master_Object[page_index].Groupings[i].Name,
+              -- Size = 11,
+              Color = {
+                  255,
+                  255,
+                  255
+              },
+              Fill = Colors.heading,
+              StrokeWidth = 0,
+              CornerRadius = 4,
+              Position = {
+                  15,
+                  total_depth - 8
+              },
+              Size = {
+                  len <= 12 and 90 or len <= 20 and 140 or len <= 30 and 170,
+                  18
+              },
+              Font = "Montserrat",
+              FontStyle = "Medium"
+          })
+      
+          total_depth = total_depth + 40 + ((depth * control_depth) + ((depth - 1) * control_gap))
+      
+      end
+      
+      -- width of the group box minus borders
+      local box_width = (width - 60)
+      
+      for i, grouping in ipairs(Master_Object[page_index].Groupings) do
+      
+          local Slots = grouping.Control_Slots
+      
+          for _, ctl in ipairs(grouping.Controls) do
+      
+              local pos_x = nil
+              local pos_y = nil
+      
+              if (ctl.Width and (ctl.Width == "Full")) then
+                  pos_x = 15
+                  pos_y = (Slots[ctl.GridPos] + control_depth + control_gap)
+              else
+                  if (ctl.Position) then
+                      pos_x = ctl.Position
+                  else
+                      pos_x = (width - 15) - ctl.Size[1]
+                  end
+                  pos_y = Slots[ctl.GridPos]
+              end
+      
+              -- Only runs if the 'Count' property is present in the Controls properties.
+              if ctl.Count then
+              
+                local name = ctl.Name
+                local prettyname = ctl.PrettyName
+                local size = ctl.Size
+              
+                  for n = 1 , ctl.Count do
+                    
+                    -- for controls with a control count > 1. Sort the pins into groups and add the number to the name
+                    if ctl.Count > 1 then
+                        prettyname = ctl.PrettyName..'~'..n
+                        name = ctl.Name.." "..n
+                    
+                    -- add the control to the control column, multiple controls are added left to right
+                    layout[name] = {
+                        PrettyName = prettyname,
+                        Legend = ctl.Legend,
+                        Style = ctl.Style,
+                        Size = ctl.Size,
+                        Position = {
+                          pos_x - ctl.Count * ctl.Size[1] +  n * ctl.Size[1],
+                          pos_y
+                        },
+                        Font = "Droid Sans",
+                        FontSize = 8
+                      }
+                    end
+                  end
+  
+                else
+                -- add the controls where the control count = 1
+                layout[ctl.Name] = {
+                    PrettyName = ctl.PrettyName,
+                    Legend = ctl.Legend,
+                    Style = ctl.Style,
+                    Position = {
+                        pos_x,
+                        pos_y
+                    },
+                    Size = ctl.Size,
+                    Font = "Droid Sans",
+                    FontSize = 8
+                  }
+              end
+              
+              -- Only runs if the Controls properties contain the 'Label' property.
+              if ctl.Label then
+                -- Only runs if the 'Count' property is present in the Controls properties.
+                if ctl.Count then
+                  table.insert(graphics, {
+                    Type = "Label",
+                    Text = ctl.Label,
+                    HTextAlign = "Left",
+                    Color = Colors.white,
+                    Font = "Droid Sans",
+                    Position = {
+                        15,
+                        (Slots[ctl.GridPos] ~= nil) and Slots[ctl.GridPos] or Slots[#Slots]
+                    },
+                    Size = {
+                        (ctl.Width == "Full") and (width - 30) or (width - 30) - ctl.Count * ctl.Size[1],
+                        control_depth
+                    }
+                })
+                else
+                  table.insert(graphics, {
+                      Type = "Label",
+                      Text = ctl.Label,
+                      HTextAlign = "Left",
+                      Color = Colors.white,
+                      Font = "Droid Sans",
+                      Position = {
+                          15,
+                          (Slots[ctl.GridPos] ~= nil) and Slots[ctl.GridPos] or Slots[#Slots]
+                      },
+                      Size = {
+                          (ctl.Width == "Full") and (width - 30) or (width - 30) - ctl.Size[1],
+                          control_depth
+                      }
+                  })
+                end
+              end
+      
+          end
+      
+      end
+      return layout, graphics
+  end
+  
+  
+  
+  ------------------------ USER COMPONENT Runtime Code is below wrapped inside of 'if Controls then...user script...end'
+  --Start event based logic
+  if Controls then
+
+--[[
+# Q-SYS-Bose-VB1-Videobar-REST API
+
+- Bose VB1 Q-Sys Plugin (REST API)
+- Written by Glen Gorton (glen.gorton@gmail.com)
+- Tested with Firmware version 1.5.1_75ebaa7
+
+## NOTES:
+- Disconnect Bluetooth Device' -- bluetooth.disconnect (1.3.6.1.4.1.6036.727.228)
+REST API has the ability to send Values 1, 2 or 3 but no information on what these do. Found 1 and 3 will disconnect the currently connected bluetooth device, and 2 will do nothing.
+'Bluetooth Disconnect Device' EventHandler is sending a Value of 1.
+
+- 'USB Call Status'
+MS Teams and Zoom must have Bose VB1 selected as the microphone in order for the response to be true ("1"). Tested with Zoom Workplace Version: 6.1.1 (41705) and Microsoft Teams version 24165.1414.2987.41.
+
+- 'System Name'
+Device loses connectivity when system.name is changed via SNMP, REST API or HTTP interface. SNMP Guide documents says "Reboot on Update: no".
+When changing name via HTTP interface a prompt warns the device will reboot. Informed Bose of incorrect documentation.
+Script functions as if the Reboot function has been triggered, setting Status to Initialzing - Device Rebooting...
+
+]]--
+
+status_tbl = {}
+
+-- insert status table keys and associated message/code
+status_tbl[0] = {message = "", code = 0}
+status_tbl["key"] = {message = "", code = 0}
+
+-- Services
+rapidjson = require "rapidjson"
+pollTimer = Timer.New()
+presetTimer = Timer.New()
+pollDelay = Timer.New()
+peopleCountTimer = Timer.New()
+
+
+-- Constants
+Presets = {"Home", "1", "2"}
+PeopleCount = 0
+
+-- Table of Controls that will be "cleared" at Initialize
+TextIndicators = {"Model Number", "Serial Number", "MAC Address (Ethernet)", "MAC Address (Wifi)", "Firmware Version", "Name", "Building", "Floor", "Room", "Capacity", "Ethernet State", "Wifi State", "Camera State", "Bluetooth Paired Device", "Log Entry", "Log Severity"}
+IntegerIndicators = {"Camera Pan", "Camera Tilt", "Camera Zoom", "Speaker Volume", "People Count"}
+
+
+-- Functions
+
+-- Will temporarily stop the Poll() function. StartPollDelay() added to quick trigger controls (eg. volume up/down, PTZ controls)
+function StartPollDelay()
+  pollTimer:Stop()
+  pollDelay:Start(0.5)
+  --pollDelay:Start(2.0)
+end
+
+pollDelay.EventHandler = function()
+  pollDelay:Stop()
+  Poll()
+end
+
+
+function Initialize()
+  
+  --[[ stop polling ]]
+  pollTimer:Stop()
+  peopleCountTimer:Stop()
+  
+  --[[ reset controls ]]
+  ResetTextIndicators()
+
+  --[[ validate the IP address ]]
+  if Controls["IP Address"].String == "" then
+    SetStatus(3, "No IP Address")
+    Controls["IP Address"].Color = 'Red'
+    ip = Controls['IP Address'].String
+  return end
+  ip = Controls['IP Address'].String:match('(%d?%d?%d%.%d?%d?%d%.%d?%d?%d%.%d?%d?%d)');
+  Controls["IP Address"].Color = ip and 'Green' or 'Red'
+  
+  SetStatus(ip and 5 or 2, ip and "Script Restarted" or "IP Address Invalid")
+  if not ip then return print("User.Error: IP Address Invalid") end
+
+  Connect()
+
+end
+
+
+
+function Connect()
+  if not Controls["Connect"].Boolean then SetStatus(3, "Component Manually Disconnected") return end
+  auth = string.format("Basic %s", Crypto.Base64Encode(string.format("%s:%s", Controls["Login Name"].String, Controls["Login Password"].String)))
+
+  GetUnitInfo()
+  Timer.CallAfter(Poll, 1)
+end
+
+----- Executes inside the Initialize function - Clears .String on the controls -------
+function ResetTextIndicators()
+  for i, control_name in ipairs(TextIndicators) do
+    Controls[control_name].String = ""
+  end
+  for i, control_name in ipairs(IntegerIndicators) do
+    Controls[control_name].Value = 0
+  end
+
+  for i, v in pairs(Controls["Preset Active"]) do
+    Controls["Preset Active"][i].Boolean = false
+  end
+end
+
+
+function SetStatus(code, message, lookup)
+
+  -- if there's a lookup key, fetch the code and message
+  if lookup then
+    code = status_tbl[lookup].code
+    message = status_tbl[lookup].message
+  end
+  
+  Controls["Status"].Value = code
+    
+  -- Controls["People Count"].String added to end of Status if Model# is VB1
+  if (code == 0) then
+    if Controls["Model Number"].String == "VB1" then
+      Controls["Status"].String = string.format("%s%s%s", message, (message == "") and "" or ": ", ip and ip or "None").." - People Count: "..Controls["People Count"].String
+    else
+      Controls["Status"].String = string.format("%s%s%s", message, (message == "") and "" or ": ", ip and ip or "None")
+    end
+  end
+  
+  if (code ~= 0) then 
+    Controls["Status"].String = string.format("%s%s%s", message, (message == "") and "" or ": ", ip and ip or "None")
+  end
+
+  print(string.format("User.Info: Settings Status with Code: '%d', Message: '%s'", code, message))
+
+
+end
+
+
+function EventLog(log, severity)
+  Controls["Log Entry"].String = string.format("%s: %s", Controls["Event Log Prefix"].String, log)
+  Controls["Log Severity"].String = severity
+  Controls["Log Trigger"]:Trigger()
+end
+
+
+-- Will Log an Event if the number of people counted changes. PeopleCount is "0" when script starts.
+function PeopleCountEventLog()
+  if Controls["People Count Event Log"].Boolean == true then
+    print("People Count Timer expired: "..math.floor(Controls["People Count Check"].Value).. " seconds.")
+    if PeopleCount ~= math.floor(Controls["People Count"].Value) then
+      print("People Count Event Log Created. People Counted = "..PeopleCount)
+      EventLog("People Count = "..math.floor(Controls["People Count"].Value), "normal")
+      PeopleCount = math.floor(Controls["People Count"].Value)
+    end
+  end
+end 
+
+
+function HttpDownload(...)
+
+  if not ip then return print("User.Error: IP address invalid") end
+  
+  if not Controls["Connect"].Boolean then return SetStatus(3, "Component has been Manually Disconnected") end
+  
+  args = table.pack(...); args.n = nil
+  query = ""
+  for i, v in ipairs(args) do
+    query = query..v..","
+  end
+  query = string.sub(query, 0 , (string.len(query)-1))
+  print(query)
+  
+  HttpClient.Download{
+    Url = "https://"..ip.."/api?query="..query,
+    Headers = {
+      ["Content-Type"] = "application/json",
+      ["Authorization"] = auth
+    },
+    Timeout = 5,
+    EventHandler = Result
+  }
+end
+
+
+function HttpUploadPost(...)
+
+  if not ip then return print("User.Error: IP address invalid") end
+  
+  if not Controls["Connect"].Boolean then return SetStatus(3, "Component has been Manually Disconnected") end
+  
+  args = table.pack(...); args.n = nil
+  post = ""
+  for i, v in ipairs(args) do
+    post = post..v..","
+  end
+  post = string.sub(post, 0 , (string.len(post)-1))
+  print(post)
+  
+  HttpClient.Upload{
+    Url = "https://"..ip.."/api",
+    Method = "POST",
+    User = Controls["Login Name"].String,
+    Password = Controls["Login Password"].String,
+    Auth = "basic",
+    Headers = {
+      ["Content-Type"] = "application/x-www-form-urlencoded",
+      ["accept"] = "application/json"
+    },
+    --Data = "data="..HttpClient.EncodeString("{\""..post.."\":\"\"}"),
+    Data = "data="..HttpClient.EncodeString(post),
+    EventHandler = Result
+  }
+end
+
+
+function HttpUploadPut(...)
+
+  if not ip then return print("User.Error: IP address invalid") end
+  
+  if not Controls["Connect"].Boolean then return SetStatus(3, "Component has been Manually Disconnected") end
+  
+  args = table.pack(...); args.n = nil
+  put = ""
+  for i, v in ipairs(args) do
+    put = put..v..","
+  end
+  put = string.sub(put, 0 , (string.len(put)-1))
+  print(put)
+  
+  HttpClient.Upload{
+    Url = "https://"..ip.."/api",
+    Method = "PUT",
+    User = Controls["Login Name"].String,
+    Password = Controls["Login Password"].String,
+    Auth = "basic",
+    Headers = {
+      ["Content-Type"] = "application/x-www-form-urlencoded",
+      ["accept"] = "application/json"
+    },
+    Data = "data="..HttpClient.EncodeString(put),
+    EventHandler = Result
+  }
+end
+
+
+function Result(tbl, code, data, err, headers)
+
+  print(string.format( "[%i] [%s]%s", code, data, err and string.format(" Error: [%s]", err) or "" ) )
+  --print(string.format( "[%i] [%s]%s", code, tbl.Url, err and string.format(" Error: [%s]", err) or "" ) )
+  --print(tbl, code, data, err, headers)
+
+  if (code == 0.0) then return SetStatus(3, string.format("Videobar Unreachable - Response Code %d", code)) end
+  
+  if (code == 401.0) then return SetStatus(1, string.format("Login Unauthorized", code)) end
+  
+  if not (code == 200.0) then return SetStatus(1, string.format("Non '200' Response - Response Code %d", code)) end
+  
+  if not Controls["Connect"].Boolean then return SetStatus(3, "Component has been Manually Disconnected") end
+  
+  SetStatus(0, string.format("", code))
+  
+-- Reboot Command Response - will SetStatus to Initializing and restart the pollTimer after 70 seconds.
+  if string.match(data, '"32": {"code": "0xe000", "status": "success"}}') or string.match(data, '"32": {"status": "success", "code": "0xe000"}}') then
+    print("DEVICE REBOOTED")
+    SetStatus(5, "Device Rebooted")
+    pollTimer:Stop()
+    peopleCountTimer:Stop()
+    pollTimer:Start(70)
+  end
+
+-- GetUnitInfo() responses.
+
+  -- Model Number
+  if string.match(data, '"D6": {"status": "success", "value": "(.-)"}') ~= nil then
+    model_number = string.upper(string.match(data, '"D6": {"status": "success", "value": "(.-)"}'))
+  elseif string.match(data, '"D6": {"value": "(.-)"') then
+    local modelnumber = string.match(data, '"D6": {(%p*%s*%w*"value": ".-)"')
+    model_number = string.upper(string.gsub(modelnumber, "(\"value\": \")", ""))
+  end
+  if model_number then
+    Controls["Model Number"].String = model_number
+    --print("Model Number: "..model_number)
+  end
+
+  -- Serial Number
+  if string.match(data, '"10": {"status": "success", "value": "(.-)"}') ~= nil then
+    serial_number = string.upper(string.match(data, '"10": {"status": "success", "value": "(.-)"}'))
+  elseif string.match(data, '"10": {"value": "(.-)"') then
+    local serialnumber = string.match(data, '"10": {(%p*%s*%w*"value": ".-)"')
+    serial_number = string.upper(string.gsub(serialnumber, "(\"value\": \")", ""))
+  end
+  if serial_number then
+    Controls["Serial Number"].String = serial_number
+    --print("Serial Number: "..serial_number)
+  end
+
+  -- Firmware Version
+  if string.match(data, '"16": {"status": "success", "value": "(.-)"}') ~= nil then
+    firmware_version = string.upper(string.match(data, '"16": {"status": "success", "value": "(.-)"}'))
+  elseif string.match(data, '"16": {"value": "(.-)"') then
+    local firmareversion = string.match(data, '"16": {(%p*%s*%w*"value": ".-)",')
+    firmware_version = string.upper(string.gsub(firmareversion, "(\"value\": \")", ""))
+  end
+  if firmware_version then
+    Controls["Firmware Version"].String = firmware_version
+    --print("Firmware Version: "..firmware_version)
+  end
+
+  -- MAC Address Ethernet
+  if string.match(data, '"80": {"status": "success", "value": "(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)"}') ~= nil then
+    mac_address = string.upper(string.match(data, '"80": {"status": "success", "value": "(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)"}'))
+  elseif string.match(data, '"80": {"value": "(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)"') then
+    local macaddress = string.match(data, '"80": {(%p*%s*%w*"value": "%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)')
+    mac_address = string.upper(string.gsub(macaddress, "(\"value\": \")", ""))
+  end
+  if mac_address then
+    Controls["MAC Address (Ethernet)"].String = mac_address
+    --print("MAC Address Ethernet: "..mac_address)
+  end
+
+  -- MAC Address Wifi
+  if string.match(data, '"AC": {"status": "success", "value": "(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)"}') ~= nil then
+    mac_address_wifi = string.upper(string.match(data, '"AC": {"status": "success", "value": "(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)"}'))
+  elseif string.match(data, '"AC": {"value": "(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)"') then
+    local macaddresswifi = string.match(data, '"AC": {(%p*%s*%w*"value": "%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)')
+    mac_address_wifi = string.upper(string.gsub(macaddresswifi, "(\"value\": \")", ""))
+  end
+  if mac_address_wifi then
+    Controls["MAC Address (Wifi)"].String = mac_address_wifi
+    --print("MAC Address Wifi: "..mac_address_wifi)
+  end
+
+  -- Device Name
+  if string.match(data, '"25": {"status": "success", "value": "(.-)"}') ~= nil then
+    name = string.match(data, '"25": {"status": "success", "value": "(.-)"}')
+  elseif string.match(data, '"25": {"value": "(.-)"') then
+    local devicename = string.match(data, '"25": {(%p*%s*%w*"value": ".-)"')
+    name = string.upper(string.gsub(devicename, "(\"value\": \")", ""))
+  end 
+  if name then
+    Controls["Name"].String = name
+    --print("Device Name: "..name)
+  end
+
+  -- Device Location (Building)
+  if string.match(data, '"28": {"status": "success", "value": "(.-)"}') ~= nil then
+    building = string.match(data, '"28": {"status": "success", "value": "(.-)"}')
+  elseif string.match(data, '"28": {"value": "(.-)"') then
+    local devicebuilding = string.match(data, '"28": {(%p*%s*%w*"value": ".-)"')
+    building = string.upper(string.gsub(devicebuilding, "(\"value\": \")", ""))
+  end 
+  if building then
+    Controls["Building"].String = building
+    --print("Building: "..building)
+  end
+
+  -- Device Location (Floor)
+  if string.match(data, '"27": {"status": "success", "value": "(.-)"}') ~= nil then
+    floor = string.match(data, '"27": {"status": "success", "value": "(.-)"}')
+  elseif string.match(data, '"27": {"value": "(.-)"') then
+    local devicefloor = string.match(data, '"27": {(%p*%s*%w*"value": ".-)"')
+    floor = string.upper(string.gsub(devicefloor, "(\"value\": \")", ""))
+  end
+  if floor then
+    Controls["Floor"].String = floor
+    --print("Building Floor: "..floor)
+  end
+
+  -- Device Location (Room)
+  if string.match(data, '"26": {"status": "success", "value": "(.-)"}') ~= nil then
+    room = string.match(data, '"26": {"status": "success", "value": "(.-)"}')
+  elseif string.match(data, '"26": {"value": "(.-)"') then
+    local deviceroom = string.match(data, '"26": {(%p*%s*%w*"value": ".-)"')
+    room = string.upper(string.gsub(deviceroom, "(\"value\": \")", ""))
+  end
+  if room then
+    Controls["Room"].String = room
+    --print("Room Number: "..room)
+  end
+
+  -- Device Location (Room Capactity)
+  if string.match(data, '"DF": {"status": "success", "value": "(.-)"}') ~= nil then
+    capacity = string.match(data, '"DF": {"status": "success", "value": "(.-)"}')
+  elseif string.match(data, '"DF": {"value": "(.-)"') then
+    local roomcapacity = string.match(data, '"DF": {(%p*%s*%w*"value": ".-)"')
+    capacity = string.upper(string.gsub(roomcapacity, "(\"value\": \")", ""))
+  end
+  if capacity then
+    Controls["Capacity"].String = capacity
+    --print("Room Capacity: "..capacity)
+    else Controls["Capacity"].String = ""
+  end
+
+  -- DHCP State (Ethernet)
+  if string.match(data, '"74": {"status": "success", "value": "(%d+)"}') ~= nil then
+    dhcp_state = string.match(data, '"74": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"74": {"value": "(%d+)"') then
+    local dhcpstate = string.match(data, '"74": {(%p*%s*%w*"value": "%d+)')
+    dhcp_state = string.gsub(dhcpstate, "(\"value\": \")", "")  
+  end 
+  if dhcp_state then
+    Controls["DHCP (Ethernet)"].Value = dhcp_state
+    --if dhcp_state == "1" then print("DHCP On (Ethernet)") elseif dhcp_state == "0" then print ("DHCP Off (Ethernet)") end
+  end 
+
+  -- DHCP State (Wifi)
+  if string.match(data, '"A1": {"status": "success", "value": "(%d+)"}') ~= nil then
+    dhcp_state_wifi = string.match(data, '"A1": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"A1": {"value": "(%d+)"') then
+    local dhcpstatewifi = string.match(data, '"A1": {(%p*%s*%w*"value": "%d+)')
+    dhcp_state_wifi = string.gsub(dhcpstatewifi, "(\"value\": \")", "")  
+  end 
+  if dhcp_state_wifi then
+    Controls["DHCP (Wifi)"].Value = dhcp_state_wifi
+    --if dhcp_state_wifi == "1" then print("DHCP On (Wifi)") elseif dhcp_state_wifi == "0" then print ("DHCP Off (Wifi)") end
+  end 
+
+
+-- Poll() responses.
+
+  -- Ethernet State
+  if string.match(data, '"7F": {"status": "success", "value": "(.-)"}') ~= nil then
+    ethernet_state = string.match(data, '"7F": {"status": "success", "value": "(.-)"}')
+  elseif string.match(data, '"7F": {"value": "(.-)"') then
+    local ethernetstate = string.match(data, '"7F": {(%p*%s*%w*"value": ".-)"')
+    ethernet_state = string.gsub(ethernetstate, "(\"value\": \")", "")
+  end
+  if ethernet_state then
+    Controls["Ethernet State"].String = ethernet_state:gsub("^%l", string.upper) --< gsub: used to make the first character of the response upper case
+    --print("Ethernet State: "..ethernet_state:gsub("^%l", string.upper))
+  end
+
+  -- Wifi State
+  if string.match(data, '"B0": {"status": "success", "value": "(.-)"}') ~= nil then
+    wifi_state = string.match(data, '"B0": {"status": "success", "value": "(.-)"}')
+  elseif string.match(data, '"B0": {"value": "(.-)"') then
+    local wifistate = string.match(data, '"B0": {(%p*%s*%w*"value": ".-)"')
+    wifi_state = string.gsub(wifistate, "(\"value\": \")", "")
+  end
+  if wifi_state then
+    Controls["Wifi State"].String = wifi_state:gsub("^%l", string.upper) --< gsub: used to make the first character of the response upper case
+    --print("Wifi State: "..wifi_state:gsub("^%l", string.upper))
+  end
+
+  -- GPI Mute State (Ctrl Input: Use the port for mute override using the included 2-pin Euroblock connector. By default, this input is active low and includes an internal pull-up.)
+  if string.match(data, '"C7": {"status": "success", "value": "(%d+)"}') ~= nil then
+    gpi_mute_state = string.match(data, '"C7": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"C7": {"value": "(%d+)"') then
+    local gpistate = string.match(data, '"C7": {(%p*%s*%w*"value": "%d+)')
+    gpi_mute_state = string.gsub(gpistate, "(\"value\": \")", "")
+  end
+  if gpi_mute_state then
+    Controls["GPI Mute State"].Value = gpi_mute_state
+    --if gpi_mute_state == "1" then print("GPI Muted") elseif gpi_mute_state == "0" then print ("GPI Unmuted") end
+  end 
+
+  -- Ethernet Enabled
+  if string.match(data, '"38": {"status": "success", "value": "(%d+)"}') ~= nil then
+    ethernet_enabled = string.match(data, '"38": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"38": {"value": "(%d+)"') then
+    local ethernetenabled = string.match(data, '"38": {(%p*%s*%w*"value": "%d+)')
+    ethernet_enabled = string.gsub(ethernetenabled, "(\"value\": \")", "")  
+  end 
+  if ethernet_enabled then
+    Controls["Ethernet Enabled"].Value = ethernet_enabled
+    --if ethernet_enabled == "1" then print("Ethernet ON (Enabled)") elseif ethernet_enabled == "0" then print ("Ethernet OFF (Disabled)") end
+  end
+
+  -- Bluetooth Enabled
+  if string.match(data, '"3A": {"status": "success", "value": "(%d+)"}') ~= nil then
+    bluetooth_enabled = string.match(data, '"3A": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"3A": {"value": "(%d+)"') then
+    local bluetoothenabled = string.match(data, '"3A": {(%p*%s*%w*"value": "%d+)')
+    bluetooth_enabled = string.gsub(bluetoothenabled, "(\"value\": \")", "")  
+  end 
+  if bluetooth_enabled then
+    Controls["Bluetooth Enabled"].Value = bluetooth_enabled
+    --if bluetooth_enabled == "1" then print("Bluetooth ON") elseif bluetooth_enabled == "0" then print ("Bluetooth OFF") end
+  end 
+
+  -- Wifi Enabled
+  if string.match(data, '"3B": {"status": "success", "value": "(%d+)"}') ~= nil then
+    wifi_enabled = string.match(data, '"3B": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"3B": {"value": "(%d+)"') then
+    local wifienabled = string.match(data, '"3B": {(%p*%s*%w*"value": "%d+)')
+    wifi_enabled = string.gsub(wifienabled, "(\"value\": \")", "")  
+  end 
+  if wifi_enabled then
+    Controls["Wifi Enabled"].Value = wifi_enabled
+    --if wifi_enabled == "1" then print("Wifi ON (Enabled)") elseif wifi_enabled == "0" then print ("Wifi OFF (Disabled)") end
+  end
+
+  -- HDMI Enabled
+  if string.match(data, '"C9": {"status": "success", "value": "(%d+)"}') ~= nil then
+    hdmi_enabled = string.match(data, '"C9": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"C9": {"value": "(%d+)"') then
+    local hdmienabled = string.match(data, '"C9": {(%p*%s*%w*"value": "%d+)')
+    hdmi_enabled = string.gsub(hdmienabled, "(\"value\": \")", "")  
+  end 
+  if hdmi_enabled then
+    Controls["HDMI Enabled"].Value = hdmi_enabled
+    --if hdmi_enabled == "1" then print("HDMI Enabled") elseif hdmi_enabled == "0" then print ("HDMI Disabled") end
+  end
+
+  -- USB Connected
+  if string.match(data, '"36": {"status": "success", "value": "(%d+)"}') ~= nil then
+    usb_connected = string.match(data, '"36": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"36": {"value": "(%d+)"') then
+    local usbconnected = string.match(data, '"36": {(%p*%s*%w*"value": "%d+)')
+    usb_connected = string.gsub(usbconnected, "(\"value\": \")", "")  
+  end 
+  if usb_connected then
+    Controls["USB Connected"].Value = usb_connected
+    --if usb_connected == "1" then print("USB Connected") elseif usb_connected == "0" then print ("USB Not Connected") end
+  end
+
+  -- USB Call Status
+  if string.match(data, '"37": {"status": "success", "value": "(%d+)"}') ~= nil then
+    usb_call = string.match(data, '"37": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"37": {"value": "(%d+)"') then
+    local usbcall = string.match(data, '"37": {(%p*%s*%w*"value": "%d+)')
+    usb_call = string.gsub(usbcall, "(\"value\": \")", "")  
+  end 
+  if usb_call then
+    Controls["USB Call Status"].Value = usb_call
+    --if usb_call == "1" then print("USB Call Connected") elseif usb_call == "0" then print ("USB Call Not Connected") end
+  end
+
+  -- Microphone Mute
+  if string.match(data, '"2": {"status": "success", "value": "(%d+)"}') ~= nil then
+    mic_mute = string.match(data, '"2": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"2": {"value": "(%d+)"') then
+    local micmute = string.match(data, '"2": {(%p*%s*%w*"value": "%d+)')
+    mic_mute = string.gsub(micmute, "(\"value\": \")", "")  
+  end 
+  if mic_mute then
+    Controls["Microphone Mute"].Value = mic_mute
+    --if mic_mute == "1" then print("Microphone Muted") elseif mic_mute == "0" then print ("Microphone Unmuted") end
+  end
+
+  -- Speaker Mute
+  if string.match(data, '"33": {"status": "success", "value": "(%d+)"}') ~= nil then
+    speaker_mute = string.match(data, '"33": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"33": {"value": "(%d+)"') then
+    local speakermute = string.match(data, '"33": {(%p*%s*%w*"value": "%d+)')
+    speaker_mute = string.gsub(speakermute, "(\"value\": \")", "")  
+  end 
+  if speaker_mute then
+    Controls["Speaker Mute"].Value = speaker_mute
+    --if speaker_mute == "1" then print("Speaker Muted") elseif speaker_mute == "0" then print ("Speaker Unmuted") end
+  end
+
+  -- Speaker Volume
+  if string.match(data, '"3": {"status": "success", "value": "(%d+)"}') ~= nil then
+    speaker_volume = string.match(data, '"3": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"3": {"value": "(%d+)"') then
+    local speakervolume = string.match(data, '"3": {(%p*%s*%w*"value": "%d+)')
+    speaker_volume = string.gsub(speakervolume, "(\"value\": \")", "")  
+  end 
+  if speaker_volume then
+    Controls["Speaker Volume"].Value = speaker_volume
+    --print("Speaker Volume: "..speaker_volume)
+  end
+
+  -- Camera Zoom
+  if string.match(data, '"6": {"status": "success", "value": "(%d+)"}') ~= nil then
+    camera_zoom = string.match(data, '"6": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"6": {"value": "(%d+)"') then
+    local camerazoom = string.match(data, '"6": {(%p*%s*%w*"value": "%d+)')
+    camera_zoom = string.gsub(camerazoom, "(\"value\": \")", "")  
+  end 
+  if camera_zoom then
+    Controls["Camera Zoom"].Value = camera_zoom
+    --print("Camera Zoom Value: "..camera_zoom)
+  end
+
+  -- Camera Pan
+  if string.match(data, '"7": {"status": "success", "value": "(%-?%d+)"}') ~= nil then
+    camera_pan = string.match(data, '"7": {"status": "success", "value": "(%-?%d+)"}')
+  elseif string.match(data, '"7": {"value": "(%-?%d+)"') then
+    local camerapan = string.match(data, '"7": {(%p*%s*%w*"value": "%-?%d+)')
+    camera_pan = string.gsub(camerapan, "(\"value\": \")", "")  
+  end 
+  if camera_pan then
+    Controls["Camera Pan"].Value = camera_pan
+    --print("Camera Pan Value: "..camera_pan)
+  end
+
+  -- Camera Tilt
+  if string.match(data, '"8": {"status": "success", "value": "(%-?%d+)"}') ~= nil then
+    camera_tilt = string.match(data, '"8": {"status": "success", "value": "(%-?%d+)"}')
+  elseif string.match(data, '"8": {"value": "(%-?%d+)"') then
+    local cameratilt = string.match(data, '"8": {(%p*%s*%w*"value": "%-?%d+)')
+    camera_tilt = string.gsub(cameratilt, "(\"value\": \")", "")  
+  end 
+  if camera_tilt then
+    Controls["Camera Tilt"].Value = camera_tilt
+    --print("Camera Tilt Value: "..camera_tilt)
+  end
+
+  -- Preset Active
+  if string.match(data, '"13": {"status": "success", "value": "(%d+)"}') ~= nil then
+    preset_active = string.match(data, '"13": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"13": {"value": "(%d+)"') then
+    local presetactive = string.match(data, '"13": {(%p*%s*%w*"value": "%d+)')
+    preset_active = string.gsub(presetactive, "(\"value\": \")", "")  
+  end 
+  if preset_active then
+    Controls["Preset Active"][tonumber(preset_active)].Boolean = true
+    
+      -- For Loop to set Preset Active LEDs to false if they're not the active preset.
+      for i, c in ipairs(Controls["Preset Active"]) do
+        if i ~= tonumber(preset_active) then 
+          c.Boolean = false
+        end
+      end
+
+    --print("Active Camera Preset: "..preset_active)
+  end
+
+  -- Preset PTZ Positions (Home Preset)
+  if string.match(data, '"56": {"status": "success", "value": "(%-?%d+%s+%-?%d+%s+%-?%d+)"}') ~= nil then
+    preset_home_position = string.match(data, '"56": {"status": "success", "value": "(%-?%d+%s+%-?%d+%s+%-?%d+)"}')
+  elseif string.match(data, '"56": {"value": "(%-?%d+%s+%-?%d+%s+%-?%d+)"') then
+    local presethomeposition = string.match(data, '"56": {(%p*%s*%w*"value": "%-?%d+%s+%-?%d+%s+%-?%d+)')
+    preset_home_position = string.gsub(presethomeposition, "(\"value\": \")", "")
+  end 
+  if preset_home_position then
+    --print("Preset Home PTZ position: "..preset_home_position)
+  end
+
+  -- Preset PTZ Positions (Preset 1)
+  if string.match(data, '"57": {"status": "success", "value": "(%-?%d+%s+%-?%d+%s+%-?%d+)"}') ~= nil then
+    preset_1_position = string.match(data, '"57": {"status": "success", "value": "(%-?%d+%s+%-?%d+%s+%-?%d+)"}')
+  elseif string.match(data, '"57": {"value": "(%-?%d+%s+%-?%d+%s+%-?%d+)"') then
+    local preset1position = string.match(data, '"57": {(%p*%s*%w*"value": "%-?%d+%s+%-?%d+%s+%-?%d+)')
+    preset_1_position = string.gsub(preset1position, "(\"value\": \")", "")
+  end 
+  if preset_1_position then
+    --print("Preset 1 PTZ position: "..preset_1_position)
+  end
+
+  -- Preset PTZ Positions (Preset 2)
+  if string.match(data, '"58": {"status": "success", "value": "(%-?%d+%s+%-?%d+%s+%-?%d+)"}') ~= nil then
+    preset_2_position = string.match(data, '"58": {"status": "success", "value": "(%-?%d+%s+%-?%d+%s+%-?%d+)"}')
+  elseif string.match(data, '"58": {"value": "(%-?%d+%s+%-?%d+%s+%-?%d+)"') then
+    local preset2position = string.match(data, '"58": {(%p*%s*%w*"value": "%-?%d+%s+%-?%d+%s+%-?%d+)')
+    preset_2_position = string.gsub(preset2position, "(\"value\": \")", "")
+  end 
+  if preset_2_position then
+    --print("Preset 2 PTZ position: "..preset_2_position)
+  end
+
+  -- Camera State
+  if string.match(data, '"60": {"status": "success", "value": "(%w+)"}') ~= nil then
+    camera_state = string.match(data, '"60": {"status": "success", "value": "(%w+)"}')
+  elseif string.match(data, '"60": {"value": "(%w+)"') then
+    local camerastate = string.match(data, '"60": {(%p*%s*%w*%d*"value": "%w+)"')
+    camera_state = string.gsub(camerastate, "(\"value\": \")", "")
+  end
+  if camera_state then
+    Controls["Camera State"].String = camera_state:gsub("^%l", string.upper) --< gsub: used to make the first character of the response upper case
+    --print("Camera State: "..camera_state:gsub("^%l", string.upper))
+  end
+
+  -- Camera Autoframing
+  if string.match(data, '"19": {"status": "success", "value": "(%d+)"}') ~= nil then
+    camera_autoframing = string.match(data, '"19": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"19": {"value": "(%d+)"') then
+    local cameraautoframing = string.match(data, '"19": {(%p*%s*%w*"value": "%d+)')
+    camera_autoframing = string.gsub(cameraautoframing, "(\"value\": \")", "")  
+  end 
+  if camera_autoframing then
+    Controls["Camera Autoframing"].Value = camera_autoframing
+    --if camera_autoframing == "1" then print("Camera Autoframing: ON") elseif camera_autoframing == "0" then print ("Camera Autoframing: OFF") end
+  end
+
+  -- Bluetooth State (on / off)
+  if string.match(data, '"67": {"status": "success", "value": "(%d+)"}') ~= nil then
+    bluetooth_state = string.match(data, '"67": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"67": {"value": "(%d+)"') then
+    local bluetoothstate = string.match(data, '"67": {(%p*%s*%w*"value": "%d+)')
+    bluetooth_state = string.gsub(bluetoothstate, "(\"value\": \")", "")  
+  end 
+  if bluetooth_state then
+    Controls["Bluetooth State"].Value = bluetooth_state
+    --if bluetooth_state == "1" then print("Bluetooth & BLE: ON") elseif bluetooth_state == "0" then print ("Bluetooth & BLE: OFF") end
+  end
+
+  -- Bluetooth Pairing (on / off)
+  if string.match(data, '"14": {"status": "success", "value": "(%d+)"}') ~= nil then
+    bluetooth_pairing = string.match(data, '"14": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"14": {"value": "(%d+)"') then
+    local bluetoothpairing = string.match(data, '"14": {(%p*%s*%w*"value": "%d+)')
+    bluetooth_pairing = string.gsub(bluetoothpairing, "(\"value\": \")", "")  
+  end 
+  if bluetooth_pairing then
+    Controls["Bluetooth Pairing"].Value = bluetooth_pairing
+    --if bluetooth_pairing == "1" then print("Bluetooth Pairing: ON") elseif bluetooth_pairing == "0" then print ("Bluetooth Pairing: OFF") end
+  end
+
+  -- Bluetooth Paired Device Name
+  if string.match(data, '"6A": {"status": "success", "value": "(.-)"}') ~= nil then
+    bluetooth_device = string.match(data, '"6A": {"status": "success", "value": "(.-)"}')
+  elseif string.match(data, '"6A": {"value": "(.-)",') then
+    local bluetoothdevice = string.match(data, '"6A": {(%p*%s*%w*"value": ".-)",')
+    bluetooth_device = string.gsub(bluetoothdevice, "(\"value\": \")", "")
+  end
+  if bluetooth_device then
+    if bluetooth_device == "" then
+      Controls["Bluetooth Paired Device"].String = ""
+      --print("No Bluetooth Paired Device")
+      else
+      Controls["Bluetooth Paired Device"].String = bluetooth_device
+      --print("Bluetooth Paired Device: "..bluetooth_device)
+    end
+  end
+
+  -- Bluetooth Connected
+  if string.match(data, '"6B": {"status": "success", "value": "(%d+)"}') ~= nil then
+    bluetooth_connected = string.match(data, '"6B": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"6B": {"value": "(%d+)"') then
+    local bluetoothconnected = string.match(data, '"6B": {(%p*%s*%w*"value": "%d+)')
+    bluetooth_connected = string.gsub(bluetoothconnected, "(\"value\": \")", "")  
+  end 
+  if bluetooth_connected then
+    Controls["Bluetooth Connected"].Value = bluetooth_connected
+    --if bluetooth_connected == "1" then print("Bluetooth Connected") elseif bluetooth_connected == "0" then print ("Bluetooth Not Connected") end
+  end
+
+  -- Bluetooth Stream State
+  if string.match(data, '"C2": {"status": "success", "value": "(%d+)"}') ~= nil then
+    bluetooth_stream = string.match(data, '"C2": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"C2": {"value": "(%d+)"') then
+    local bluetoothstream = string.match(data, '"C2": {(%p*%s*%w*"value": "%d+)')
+    bluetooth_stream = string.gsub(bluetoothstream, "(\"value\": \")", "")  
+  end 
+  if bluetooth_stream then
+    Controls["Bluetooth Streaming"].Value = bluetooth_stream
+    --if bluetooth_stream == "1" then print("Bluetooth Streaming") elseif bluetooth_stream == "0" then print ("Bluetooth Not Streaming") end
+  end
+
+  -- Bluetooth Call State
+  if string.match(data, '"6C": {"status": "success", "value": "(%d+)"}') ~= nil then
+    bluetooth_call = string.match(data, '"6C": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"6C": {"value": "(%d+)"') then
+    local bluetoothcall = string.match(data, '"6C": {(%p*%s*%w*"value": "%d+)')
+    bluetooth_call = string.gsub(bluetoothcall, "(\"value\": \")", "")  
+  end 
+  if bluetooth_call then
+    Controls["Bluetooth Call Status"].Value = bluetooth_call
+    --if bluetooth_call == "1" then print("Bluetooth Call Connected") elseif bluetooth_call == "0" then print ("Bluetooth Call Not Connected") end
+  end
+
+  -- People Present
+  if string.match(data, '"DC": {"status": "success", "value": "(%d+)"}') ~= nil then
+    people_present = string.match(data, '"DC": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"DC": {"value": "(%d+)"') then
+    local peoplepresent = string.match(data, '"DC": {(%p*%s*%w*"value": "%d+)')
+    people_present = string.gsub(peoplepresent, "(\"value\": \")", "")  
+  end 
+  if people_present then
+    Controls["People Present"].Value = people_present
+    --if people_present == "1" then print("People Present: YES") elseif people_present == "0" then print ("People Present: NO") end
+  end
+
+  -- People Count
+  if string.match(data, '"DA": {"status": "success", "value": "(%d+)"}') ~= nil then
+    people_count = string.match(data, '"DA": {"status": "success", "value": "(%d+)"}')
+  elseif string.match(data, '"DA": {"value": "(%d+)"') then
+    local peoplecount = string.match(data, '"DA": {(%p*%s*%w*"value": "%d+)')
+    people_count = string.gsub(peoplecount, "(\"value\": \")", "")  
+  end 
+  if people_count then
+    Controls["People Count"].Value = people_count
+    --print("People Counted: "..people_count)
+
+    -- Start the Timer to check and log people counts
+    peopleCountTimer:Start(Controls["People Count Check"].Value)
+  end
+
+  ignore_updates = false
+
+end
+
+
+function GetUnitInfo()
+  local query = ""
+
+  for i, v in ipairs({
+    "D6", -- Model of this device
+    "10", -- Serial number of the device
+    "16", -- Firmware version of the firmware running on the device.
+    "80", -- MAC address of the LAN interface (Supported in VB1)
+    "AC", -- MAC address of the WiFi interface 
+    "74", -- DHCP state (ethernet)
+    "A1", -- DHCP state (wifi)
+    "25", -- Human readable name of the device so it can be uniquely identified
+    "26", -- Human readable room location of the device
+    "27", -- Human readable floor location of the device
+    "28", -- Human readable building location of the device
+    "DF", -- Room maximum occupancy of the device
+    
+  }) do
+    query = query..v..","
+  end
+  
+  query = string.sub(query, 1, string.len(query)-1)
+  
+  HttpDownload(query)
+end
+
+
+function Poll()
+  
+  pollTimer:Stop()
+
+  local query = ""
+
+  for i, v in ipairs({
+    "7F", -- State of the Ethernet module (Supported in VB1)
+    "B0", -- State of the WiFi module 
+    "C7", -- Shows GPI mute status on/off (Supported in VB1)
+    "38", -- Turns on/off the system Ethernet interface (Supported in VB1)
+    "3A", -- Turns on/off the system Bluetooth
+    "3B", -- Turns on/off the system WiFi
+    "C9", -- Turns on/off the HDMI (Supported in VB1) 
+    "36", -- USB cable connection status, 0 when disconnected 
+    "37", -- Call status from the host connected to USB port of the system
+    "2", -- Mutes/unmutes the system microphone
+    "33", -- Mutes/unmutes the system loudspeaker
+    "3", -- Sets the system loudspeaker volume
+    "6", -- Contains the current camera zoom value 
+    "7", -- Contains the current camera pan value 
+    "8", -- Contains the current camera tilt value
+    "13", -- This is the active preset. Note: at camera start or restart the active preset is set to Home.
+    "60", -- Camera state. When active camera is streaming video, when inactive camera is not streaming, when upgrading camera is upgrading firmware. 
+    "19", -- Turn on/off the camera autoframing feature
+    "14", -- Bluetooth pairing state. The on state will allow pairing with the device for a fixed interval. Once the pairing interval is over, the state will change to off. 
+    "67", -- Bluetooth and BLE state. The on state will indicate that Bluetooth and BLE are on, the off state will indicate that the Bluetooth and BLE are off.
+    "6A", -- Paired device name
+    "6B", -- Shows if connected to the paired device or not
+    "C2", -- Stream status of Bluetooth
+    "6C", -- Call status of Bluetooth call
+    "DC", -- True when any people have been detected by the camera autoframing algorithm (Supported in VB1) 
+    "DA", -- The number of people counted by the camera autoframing algorithm (Supported in VB1)
+    "56", -- Camera Home preset in pan tilt zoom order
+    "57", -- Camera First preset in pan tilt zoom order  
+    "58", -- Camera Second preset in pan tilt zoom order  
+  }) do
+    query = query..v..","
+  end
+  
+  query = string.sub(query, 1, string.len(query)-1)
+  
+  HttpDownload(query)
+
+  pollTimer:Start(2)
+end
+
+
+-- POST EventHandlers
+
+-- Human readable name of the device so it can be uniquely identified 
+Controls["Name"].EventHandler = function(c)
+  HttpUploadPut("{\"25\":\""..Controls["Name"].String.."\"}")
+  Timer.CallAfter(GetUnitInfo, 1)
+  print("Device Name changed to "..Controls["Name"].String..". Device Rebooting..")
+  
+  -- Timer.CallAfter allows time for the HttpUploadPut command to send, then stop and start polling timers.
+  Timer.CallAfter(function()
+    SetStatus(5, "Device Rebooted")
+    pollTimer:Stop()
+    peopleCountTimer:Stop()
+    pollTimer:Start(70)
+  end, 2)
+  
+end
+
+-- Human readable building location of the device 
+Controls["Building"].EventHandler = function(c)
+  HttpUploadPut("{\"28\":\""..Controls["Building"].String.."\"}")
+  Timer.CallAfter(GetUnitInfo, 1)
+end
+
+-- Human readable floor location of the device 
+Controls["Floor"].EventHandler = function(c)
+  HttpUploadPut("{\"27\":\""..Controls["Floor"].String.."\"}")
+  Timer.CallAfter(GetUnitInfo, 1)
+end
+
+-- Human readable room location of the device 
+Controls["Room"].EventHandler = function(c)
+  HttpUploadPut("{\"26\":\""..Controls["Room"].String.."\"}")
+  Timer.CallAfter(GetUnitInfo, 1)
+end
+
+--Room maximum occupancy of the device 
+Controls["Capacity"].EventHandler = function(c)
+  HttpUploadPut("{\"DF\":\""..Controls["Capacity"].String.."\"}")
+  Timer.CallAfter(GetUnitInfo, 1)
+end
+
+-- Increases the system loudspeaker volume by one step 
+Controls["Speaker Volume +"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPost("{\"4\":\"\"}")
+end
+
+-- Decreases the system loudspeaker volume by one step 
+Controls["Speaker Volume -"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPost("{\"5\":\"\"}")
+end
+
+-- Mutes/unmutes the system microphone 
+Controls["Microphone Mute"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"2\":\""..math.floor(Controls["Microphone Mute"].Value).."\"}")
+end
+
+-- Mutes/unmutes the system loudspeaker 
+Controls["Speaker Mute"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"33\":\""..math.floor(Controls["Speaker Mute"].Value).."\"}")
+end
+
+-- Sets the system loudspeaker volume 
+Controls["Speaker Volume"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"3\":\""..math.floor(Controls["Speaker Volume"].Value).."\"}")
+end
+
+-- Turn on/off the camera autoframing feature
+Controls["Camera Autoframing"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"19\":\""..math.floor(Controls["Camera Autoframing"].Value).."\"}")
+end
+
+-- Contains the current camera zoom value 
+Controls["Camera Zoom"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"6\":\""..math.floor(Controls["Camera Zoom"].Value).."\"}")
+end
+
+-- Zooms camera in by one step / Zooms camera out by one step 
+Zoom = {"9", "0A"}
+for i, ctl in ipairs(Controls["Zoom (In, Out)"]) do
+  ctl.EventHandler = function(c)
+    local action = Zoom[i]
+    StartPollDelay()
+    HttpUploadPost("{\""..action.."\":\"\"}")
+  end
+end
+
+-- Contains the current camera pan value 
+Controls["Camera Pan"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"7\":\""..math.floor(Controls["Camera Pan"].Value).."\"}")
+end
+
+-- Contains the current camera tilt value 
+Controls["Camera Tilt"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"8\":\""..math.floor(Controls["Camera Tilt"].Value).."\"}")
+end
+
+-- Tilts camera up by one step / Tilts camera down by one step / Pans camera left by one step / Pans camera right by one step 
+Pan_Tilt = {"0D", "0E", "0B", "0C"}
+for i, ctl in ipairs(Controls["Pan/Tilt (Up, Down, Left, Right)"]) do
+  ctl.EventHandler = function(c)
+    local action = Pan_Tilt[i]
+    StartPollDelay()
+    HttpUploadPost("{\""..action.."\":\"\"}")
+  end
+end
+
+-- This takes the current PTZ values and saves them to the home, 1 or 2 preset 
+-- Camera home, 1 or 2 preset in pan tilt zoom order 
+PresetsSave = {"12", "17", "18"}
+PresetsRecall = {"56", "57", "58"}
+for i, ctl in ipairs(Controls["Preset (Press to Recall, Hold to Save)"]) do
+  ctl.EventHandler = function(c)
+    
+    StartPollDelay()
+
+    -- If button is held for a 'long press', Set the Preset
+    presetTimer.EventHandler = function()
+      presetTimer:Stop()
+      
+      print("User.Info: Setting Preset "..i)
+      isLongPress = true
+      
+      local action = PresetsSave[i]
+      HttpUploadPost("{\""..action.."\":\"\"}")
+      
+    end
+    
+    if not Controls["Connect"].Boolean then return SetStatus(3, "Component has been Manually Disconnected") end
+    
+    -- If button is held, start 'long press' timer and return here
+    if c.Boolean then return presetTimer:Start(3) end
+    
+    -- If button is released and it was a 'long press', do nothing and return here
+    if isLongPress then isLongPress = false return end
+    
+    -- If button is released and it was a 'short press', Call the Preset
+    presetTimer:Stop()
+    print("User.Info: Calling Preset "..i)
+      
+    HttpUploadPut("{\"13\":\""..i.."\"}") -- This sets the active preset, or what will become the active preset.
+    HttpUploadPost("{\"0F\":\"\"}") -- This applies the active preset to the PTZ settings
+
+  end
+end
+
+
+-- Turns on/off the HDMI (Supported on VB1) 
+Controls["HDMI Enabled"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"C9\":\""..math.floor(Controls["HDMI Enabled"].Value).."\"}")
+end
+
+-- Turns on/off the system Bluetooth 
+Controls["Bluetooth Enabled"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"3A\":\""..math.floor(Controls["Bluetooth Enabled"].Value).."\"}")
+end
+
+-- Bluetooth pairing state. The on state will allow pairing with the device for a fixed interval. Once the pairing interval is over, the state will change to off. 
+Controls["Bluetooth Pairing"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"14\":\""..math.floor(Controls["Bluetooth Pairing"].Value).."\"}")
+end
+
+-- Disconnect bluetooth device -- REST API has the ability to send Values 1, 2 or 3 but no information on what these do.
+-- Found 1 and 3 will disconnect the currently connected bluetooth device, and 2 will do nothing.
+Controls["Bluetooth Disconnect Device"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPost("{\"E4\":\"1\"}")
+end
+--[[
+for i, ctl in ipairs(Controls["Bluetooth Disconnect Device"]) do 
+  ctl.EventHandler = function(c)
+    StartPollDelay()
+    HttpUploadPost("{\"E4\":\""..i.."\"}")
+  end
+end
+]]--
+
+
+-- Turns on/off the system WiFi 
+Controls["Wifi Enabled"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"3B\":\""..math.floor(Controls["Wifi Enabled"].Value).."\"}")
+end
+
+-- Turns on/off the system Ethernet interface (Supported in VB1)
+-- To restore access, connect to Videobar via USB and use the Bose Work Configuration application.
+Controls["Ethernet Enabled"].EventHandler = function(c)
+  StartPollDelay()
+  HttpUploadPut("{\"38\":\""..math.floor(Controls["Ethernet Enabled"].Value).."\"}")
+    
+    -- Device loses all ethernet access.
+    -- Timer.CallAfter allows time for the HttpUploadPut command to send, then stop and start polling timers.
+    Timer.CallAfter(function()
+      SetStatus(1, "Ethernet has been disabled. To enable, connect to Videobar via USB and use the Bose Work Configuration application.")
+      pollTimer:Stop()
+      peopleCountTimer:Stop()
+      pollTimer:Start(60)
+    end, 2)  
+end
+
+-- Reboot: To restart the videobar. Response to this command is dealt with in the Result() function. SetStatus to Initializing, will stop and start the pollTimer.
+Controls["Reboot"].EventHandler = function(c)
+  HttpUploadPost("{\"32\":\"\"}")
+end
+
+-- Re-initializes the script if the IP Address changes.
+Controls["IP Address"].EventHandler = function(c)
+  Initialize()
+end
+
+-- Re-initializes the script if the Connect toggle changes.
+Controls["Connect"].EventHandler = function(c)
+  Initialize()
+end
+
+-- Runs People Count Event Log after the peopleCountTimer has elapsed.
+peopleCountTimer.EventHandler = PeopleCountEventLog
+
+pollTimer.EventHandler = Poll
+
+Initialize()
+
+end
